@@ -1,25 +1,25 @@
 [[configmap-propertysource]]
 = Using a `ConfigMap` `PropertySource`
 
-Kubernetes provides a resource named https://kubernetes.io/docs/user-guide/configmap/[`ConfigMap`] to externalize the
-parameters to pass to your application in the form of key-value pairs or embedded `application.properties` or `application.yaml` files.
-The link:https://github.com/spring-cloud/spring-cloud-kubernetes/tree/main/spring-cloud-kubernetes-fabric8-config[Spring Cloud Kubernetes Config] project makes Kubernetes `ConfigMap` instances available
-during application startup and triggers hot reloading of beans or Spring context when changes are detected on
-observed `ConfigMap` instances.
+* https://kubernetes.io/docs/user-guide/configmap/[Kubernetes `ConfigMap`]
+    ** allows
+        *** externalize parameters -- to -- your application -- via --
+            **** key-value pairs or
+            **** embedded `application.properties` or `application.yaml`
+* link:https://github.com/spring-cloud/spring-cloud-kubernetes/tree/main/spring-cloud-kubernetes-fabric8-config[Spring Cloud Kubernetes Config]
+    ** makes Kubernetes `ConfigMap` instances / AVAILABLE | application startup
+    ** 👀if changes are detected | observed `ConfigMap` instances -> trigger HOT reloading of beans or Spring context 👀
 
-Everything that follows is explained mainly referring to examples using ConfigMaps, but the same stands for
-Secrets, i.e.: every feature is supported for both.
+* ALL NEXT features valid for ConfigMap & Secret
 
-The default behavior is to create a `Fabric8ConfigMapPropertySource` (or a `KubernetesClientConfigMapPropertySource`) based on a Kubernetes `ConfigMap` that has `metadata.name` of either:
-
-- value of `spring.cloud.kubernetes.config.name`
-- value of your Spring application (as defined by `spring.application.name` property)
-- the String literal `"application"`
-
-However, more advanced configuration is possible where you can use multiple `ConfigMap` instances.
-The `spring.cloud.kubernetes.config.sources` list makes this possible.
-For example, you could define the following `ConfigMap` instances:
-
+* default behavior
+    ** create a `Fabric8ConfigMapPropertySource` (or `KubernetesClientConfigMapPropertySource`) -- based on a -- Kubernetes `ConfigMap` / `metadata.name` contains
+        *** `spring.cloud.kubernetes.config.name` 's value
+        *** `spring.application.name` 's value
+        *** String literal `"application"`
+* 👀if you want to use MULTIPLE `ConfigMap` instances -> use `spring.cloud.kubernetes.config.sources`👀
+    ** _Example:_
++
 [source,yaml]
 ----
 spring:
@@ -39,12 +39,10 @@ spring:
          - namespace: n3
            name: c3
 ----
+    ** if `spring.cloud.kubernetes.config.namespace` NOT set -> `ConfigMap` `c1` -- would be looked up in the -- namespace / application runs
+        *** see xref:property-source-config/namespace-resolution.adoc[Namespace resolution]
 
-In the preceding example, if `spring.cloud.kubernetes.config.namespace` had not been set,
-the `ConfigMap` named `c1` would be looked up in the namespace that the application runs.
-See xref:property-source-config/namespace-resolution.adoc[Namespace resolution] to get a better understanding of how the namespace
-of the application is resolved.
-
+* TODO:
 
 Any matching `ConfigMap` that is found is processed as follows:
 
