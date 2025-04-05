@@ -1,49 +1,51 @@
 [[kubernetes-ecosystem-awareness]]
 = Kubernetes Ecosystem Awareness
 
-All features described earlier in this guide work equally well, regardless of whether your application is running inside
-Kubernetes. This is really helpful for development and troubleshooting.
-From a development point of view, this lets you start your Spring Boot application and debug one
-of the modules that is part of this project. You need not deploy it in Kubernetes,
-as the code of the project relies on the
-https://github.com/fabric8io/kubernetes-client[Fabric8 Kubernetes Java client], which is a fluent DSL that can
-communicate by using `http` protocol to the REST API of the Kubernetes Server.
+* ALL this project's features work well / REGARDLESS whether your application is running |
+Kubernetes
+    ** -> NO need to deploy | Kubernetes
+        *** Reason: 🧠the project -- relies on the -- https://github.com/fabric8io/kubernetes-client[Fabric8 Kubernetes Java client]
 
-Kubernetes awareness is based on Spring Boot API, specifically on https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/autoconfigure/condition/ConditionalOnCloudPlatform.html[ConditionalOnCloudPlatform].
-That property will auto-detect if your application is currently deployed in kubernetes or not. It is possible to override
-that setting via `spring.main.cloud-platform`.
+* Fabric8 Kubernetes Java client
+    ** == fluent DSL / can communicate -- via `http` protocol, to the -- Kubernetes Server's REST API
 
-For example, if you need to test some features, but do not want to deploy to a cluster, it is enough to set the:
-`spring.main.cloud-platform=KUBERNETES`. This will make `spring-cloud-kubernetes` act as-if it is deployed in a real cluster.
-
-NOTE:  If you have `spring-cloud-starter-bootstrap` on your classpath or are setting `spring.cloud.bootstrap.enabled=true` then
-you will have to set `spring.main.cloud-platform` should be set in `bootstrap.{properties|yml}`
-(or the profile specific one).  Also note that these properties: `spring.cloud.kubernetes.config.enabled` and `spring.cloud.kubernetes.secrets.enabled`
-will only take effect when set in `bootstrap.{properties|yml}` when you have `spring-cloud-starter-bootstrap` on your classpath or are setting `spring.cloud.bootstrap.enabled=true`.
+* Kubernetes awareness
+    ** | Spring Cloud Kubernetes `v3.0.x`-,
+        *** implemented -- via -- `spring.cloud.kubernetes.enabled`
+    ** | Spring Cloud Kubernetes `v3.0.x`+,
+        *** ❌`spring.cloud.kubernetes.enabled` removed ❌
+        *** 👀-- is based on -- Spring Boot API (== https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/autoconfigure/condition/ConditionalOnCloudPlatform.html[ConditionalOnCloudPlatform]) 👀
+            **** 💡== property / auto-detect if your application -- is currently -- deployed | kubernetes 💡
+            **** if you want to override -> set `spring.main.cloud-platform`
+                ***** if you need to EXPLICITLY enable the awareness -> set `spring.main.cloud-platform=NONE`
+                ***** if you need to test SOME features WITHOUT deploying | cluster -> set `spring.main.cloud-platform=KUBERNETES`
+                    ****** mirror deployment | real cluster
+* ⚠️if you have `spring-cloud-starter-bootstrap` | your classpath OR `spring.cloud.bootstrap.enabled=true` -> need to set `spring.main.cloud-platform` | `bootstrap.{properties|yml}`⚠️
+* ⚠️requirements of `spring.cloud.kubernetes.config.enabled` & `spring.cloud.kubernetes.secrets.enabled` to work ⚠️
+    ** set | `bootstrap.{properties|yml}`
+    ** `spring-cloud-starter-bootstrap` | your classpath OR `spring.cloud.bootstrap.enabled=true`
 
 [[breaking-changes-in-3-0-x]]
 == Breaking Changes In 3.0.x
 
-In versions of Spring Cloud Kubernetes prior to `3.0.x`, Kubernetes awareness was implemented using `spring.cloud.kubernetes.enabled` property. This
-property was removed and is un-supported. Instead, we use Spring Boot API: https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/autoconfigure/condition/ConditionalOnCloudPlatform.html[ConditionalOnCloudPlatform].
-If it is needed to explicitly enable or disable this awareness, use `spring.main.cloud-platform=NONE/KUBERNETES`.
-
-- Another breaking change is the additional `list` verb needed for loading configmaps/secrets. For example:
-
-```
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: cluster-role
-rules:
-  - apiGroups: ["", "extensions", "apps", "discovery.k8s.io"]
-    resources: ["configmaps", "pods", "services", "endpoints", "secrets", "endpointslices"]
-    verbs: ["get", "list", "watch"]
-```
+* PREVIOUS Kubernetes awareness
+* if you want to load configmaps/secrets -> NEED to add `list` verb
+    ** _Example:_
+        ```
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRole
+        metadata:
+          name: cluster-role
+        rules:
+          - apiGroups: ["", "extensions", "apps", "discovery.k8s.io"]
+            resources: ["configmaps", "pods", "services", "endpoints", "secrets", "endpointslices"]
+            verbs: ["get", "list", "watch"]
+        ```
 
 [[kubernetes-profile-autoconfiguration]]
 == Kubernetes Profile Autoconfiguration
 
+* TODO:
 When the application runs as a pod inside Kubernetes, a Spring profile named `kubernetes` automatically gets activated.
 This lets you customize the configuration, to define beans that are applied when the Spring Boot application is deployed
 within the Kubernetes platform (for example, different development and production configuration).
